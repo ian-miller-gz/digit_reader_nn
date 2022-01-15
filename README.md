@@ -2,11 +2,10 @@
 ###### Version 0.1, Summer 2018
 Something I wrote as an exercise in ML.
 
-A crude script designed to exhibit a custom built neural network
-written entirely in python. The Neural network is slow but extensible.
-It was meant for tinkering, but not for practical application.
+A toy neural network with virtually zero application. A project that I undertook to help me understand
+neural networks in the abstract. Stochastic gradient descent.
 
-Character Reader learns to read "boolean images" representations of digits 0-9.
+Character Reader learns to read black-white bitmap representations of digits 0-9.
 
 The mean-squared-error (MSE) is printed out at each training epoch.
 After training, each validation sample's correct classification will be printed
@@ -15,16 +14,16 @@ classifications will be marked.
 
 ## Organization
 #### Boolean Image
-Boolean images are essentially 2D arrays that map true values onto a drawing of a digit.
+Boolean images are basically black-white bitmaps.
 
 
-Manipulator has downscaling and related methods for modifyin boolean images. I may add detail
-on how the downscaling algo works when I have more time, or if If there is any demand, but I expect none.
+Manipulator has downscaling and related methods for modifying boolean images. I do not explain those
+methods here for lack of interest.
 
 
 #### Sample Reader
 Instead of keeping every sample used for training in memory, sample reader used a generator
-to retrieve the next sample to be used for training. This is terribly inefficient, but the idea is
+to retrieve the next sample to be used for training. The idea is that in realistic scenarios
 sample sizes could be much too large to hold in memory; I just wanted play around with ideas for 
 managing large amounts of data.
 
@@ -50,6 +49,4 @@ Arguments are passed in order, not by name.
     -Epochs
 
 ## Author
-Ian Miller 
-
-ianm@bgsu.edu
+Ian Miller
