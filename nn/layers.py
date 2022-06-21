@@ -5,13 +5,8 @@ from abc import ABC, abstractmethod
 
 
 class BaseLayer(ABC):
-    """
-    Base layer
+    #Layer of any type of perceptron. Abstract.
 
-    Any layer of any type of perceptron. Abstract.
-    Stores length value as count (as in neuron count)
-    Capable of calling built-in activation functions
-    """
     def __init__(self, count):
         self.count = count
         self.values = [0 for x in range(count)]
@@ -33,30 +28,17 @@ class BaseLayer(ABC):
 
 
 class InputLayer(BaseLayer):
-    """
-    Input layer of any Perceptron algorithm.
-
-    Hold no lead, weights, or connection of
-    any kind. The number of neurons depend on data
-    upstream, so initialize accordingly.
-    """
+    #input layer, fed from outside network
     def __init__(self, values):
         self.values = copy.deepcopy(values)
         self.count = len(self.values)
 
     def populate(self, values):
-        """Populate from passed values"""
         self.values = copy.deepcopy(values)
 
 
 class MultiLayer(BaseLayer, ABC):
-    """
-    Layer of a Neural Network with one or more hidden layers.
-
-    Each Layer after the input layer must be equipped for back
-    propagation. The connections between an instance of these layers,
-    and the preceding, "lead", layer belong to that instance.
-    """
+    #Between input and output
     def __init__(self, count, lead):
         BaseLayer.__init__(self, count)
         self.lead = lead
@@ -67,12 +49,9 @@ class MultiLayer(BaseLayer, ABC):
         self.previousWeights = copy.deepcopy(self.weights)
 
     def propagate(self):
-        """
-        Populate layer with activated weighted values from the
-        previous layer
-
-        σ(θⁱᵢ(Iᵥ))
-        """
+        #Populate layer with fires from previous layer
+        #σ(θⁱᵢ(Iᵥ))
+        
         self.values = [self.sigmoidActivation(sum(
                 [i * w for i, w in zip(
                     self.lead.values, self.weights[x])
@@ -80,12 +59,10 @@ class MultiLayer(BaseLayer, ABC):
             for x in range(self.count)]
 
     def updateWeights(self, momentum, learnRate):
-        """
-        Update weights for each connection in layer based on deltas
-        and inputs
+        #Update weights for each connection in layer based on deltas and inputs
 
-        θʰᵢ = α(θʰᵢ-θʰ⁻¹ᵢ) + ηδ(Hᵢ)Hⱼ⁻¹
-        """
+        #θʰᵢ = α(θʰᵢ-θʰ⁻¹ᵢ) + ηδ(Hᵢ)Hⱼ⁻¹
+
         #Set aside previous weights
         tempWeights = copy.deepcopy(self.weights)
         for i, _ in enumerate(self.values):
@@ -98,26 +75,17 @@ class MultiLayer(BaseLayer, ABC):
 
     @abstractmethod
     def updateDeltas(self):
-        """The method for updating deltas will depend on the layer"""
         pass
 
 
 class HiddenLayer(MultiLayer):
-    """Hidden Layer of a neural network """
+    #Fed from and outputs to within network
     def __init__(self, count, lead):
         MultiLayer.__init__(self, count, lead)
         return
 
     def updateDeltas(self, outputLayer): #Hidden
         """
-        For each output layer delta, the corresponding output layer
-        value was product each hidden layer neuron, and a set of
-        weights to each. To find the hidden deltas, first find the sum
-        of the product of each output layer delta and and the set of
-        weights to each output. Then find the product of the sum and
-        the derivative of the sigmoid activation function of the
-        corresponding hidden layer neuron's value.
-
         Note: Again there is a a set of weights for each neurond going
         both ways, the relationship is transformed propagating
         backwards as opposed to forwards. ie:
@@ -131,21 +99,18 @@ class HiddenLayer(MultiLayer):
             for j, _ in enumerate(outputLayer.values):
                 self.deltas[i] += (
                     outputLayer.deltas[j] * outputLayer.weights[j][i])
-            self.deltas[i] *= self.dersigmoidActivation(
-                self.values[i])
+            self.deltas[i] *= self.dersigmoidActivation(self.values[i])
 
 
 class OutputLayer(MultiLayer):
-    """The last layer of a neural network"""
+    #Fed within network, output outside network
     def __init__(self, count, lead):
         MultiLayer.__init__(self, count, lead)
         self.error = 0
         return
 
-    def updateDeltas(self, target): #Output
+    def updateDeltas(self, target):
         """
-        Modify deltas attribute.
-
         The derivative of the sigmoid activation function used in
         propagation is found for the value of each output neuron. The
         new delta value is this value multiplied by the value of the
@@ -170,9 +135,8 @@ class OutputLayer(MultiLayer):
                     (1 - self.values[i]) )
 
     def getBestFitNeuron(self):
-        """
-        Return the neuron with the highest value after propagation
-        """
+        #Return the neuron with the highest value after propagation
+        
         #Sigmoid activation function has a lower limit of -1
         limit = -1
         result = 0

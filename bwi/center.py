@@ -1,10 +1,8 @@
-from boolean_image.basemanipulator import BaseManipulator
+from bwi.basemanipulator import BaseManipulator
 
 
 class CenterParameters(object):
-    """
-    Contain values pertinent to centering a BI
-    """
+    #Contain values pertinent to centering a BI
     def __init__(self):
         #Edges; numPixels from edge to find first active pixel
         self.top = None
@@ -22,30 +20,18 @@ class CenterParameters(object):
         return
 
     def swapLeftRight(self):
-        """
-        Swap the values for the right and left edges
-
-        Use to shift pixels left from left to right, or shift right
-        from right to left
-        """
+        #Flip image horizontally
         self.left, self.right = self.right, self.left
         return
 
     def swapTopBottom(self):
-        """
-        Swap the values for the top and bottom edges
-
-        Use to shift pixels up from top to bottom, or shift down from
-        bottom to top
-        """
+        #Flip image vertically
         self.top, self.bottom = self.bottom, self.top
         return
 
 
 class Center(BaseManipulator):
-    """
-    Center the activated region of a BI
-    """
+    #Center the activated region of a BI
     def __init__(self, array, x=None, y=None):
        #BaseBinaryImageArrayManipulator.__init__(self, array, x, y)
         self._toCenter = CenterParameters()
@@ -53,9 +39,6 @@ class Center(BaseManipulator):
         return
 
     def center(self):
-        """
-        Centers self.image
-        """
         #Populate self.toCenter parameters
         self._setCenterParameters()
         self._setShifts()
@@ -66,25 +49,17 @@ class Center(BaseManipulator):
 
     @staticmethod
     def _getRange(line):
-        """
-        Return tuple of two coordinates spanning the range of active
-        pixels on line
-
-        Return tuple of two Nones when there is no active region; line
-        is a 1D array
-        """
+        #Return coordinates spanning the range of active pixels on line
         left = len(line) + 1
         right = -1
         isFound = False
         for i, eachItem in enumerate(line):
 
-            #Update the right-most pixel coordinate with each
-            #new-found active pixel
+            #Update the right-most pixel coordinate with each new-found active pixel
             if eachItem:
                 right = i
 
-                #Only check for the left-most pixel until the first
-                #pixel is found
+                #Only check for the left-most pixel until the first pixel is found
                 if not isFound:
                     isFound = True
                     left = i
@@ -93,9 +68,7 @@ class Center(BaseManipulator):
         return (left, right) if right >= 0 else (None, None)
 
     def _setCenterParameters(self):
-        """
-        Populate self._toCenter parameters
-        """
+        #Populate self._toCenter parameters
 
         #Retrive edge values
         BaseManipulator._setEdges(self)
@@ -111,9 +84,7 @@ class Center(BaseManipulator):
         return
 
     def _setShifts(self):
-        """
-        Populate self._toCenter.shift values
-        """
+        #Populate self._toCenter.shift values
         top = self.height - self._toCenter.top
         right = self.width - self._toCenter.right
 
@@ -124,10 +95,9 @@ class Center(BaseManipulator):
         return
 
     def _adjustEdges(self):
-        """
-        Modify edge, and shift values to reflect their role in further
-        operations on BI
+        #Modify edge, and shift values to reflect their role in further operations on BI
 
+        """
         Shift operations run in place; to prevent information loss,
         active pixels may only be shifted into regions without active
         pixels; when shifting right, shifting begins with the right
@@ -139,7 +109,7 @@ class Center(BaseManipulator):
          ‾ ‾ ‾ ‾ ‾      ‾ ‾ ‾ ‾ ‾
         the self.interval values store the direction of the shift, 
         i.e. -1 is left to right.
-        But, the range iteraterd through is always written right to
+        But the range iteraterd through is always written right to
         left,
         i.e. range(right, left, 1). So, when the direction is
         negative, swap the axis' edge values
@@ -163,9 +133,8 @@ class Center(BaseManipulator):
         return
 
     def _shift(self):
+        #Shift active region of BIA in place
         """
-        Shift active region of BIA in place
-
         self._adjustEdges() must be called before self._shift()
         """
         #From top to bottom shift each row appropriately
@@ -185,9 +154,8 @@ class Center(BaseManipulator):
         return
 
     def _shiftRow(self, row):
-        """
-        Shift active region of line
-        """
+        #Shift active region of line
+
         #Handle null case
         if self._toCenter.shiftX == 0:
             return
@@ -203,11 +171,8 @@ class Center(BaseManipulator):
         return
 
     def _resetParameters(self):
-        """
-        Set each parameter of paramters object to their defaults
+        #Set paramters object to defaults
 
-        Also, call in initializer to ensure consistency
-        """
         #Set top and left edge values to size of row/column; 1 outside
         #of index range
         self._toCenter.top = self.height

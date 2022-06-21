@@ -1,18 +1,13 @@
-from boolean_image.basemanipulator import BaseManipulator
+from bwi.basemanipulator import BaseManipulator
 
 class Shave(BaseManipulator):
-    """
-    BI manipulator which removes as much inactive region as possible
-    while returning a square
-    """
+    #removes as much inactive region as possible
     def __init__(self, *args, **kwargs):
         return
 
     def shave(self):
-        """
-        Remove, in place, rows and columns surrounding BI without
-        active pixels
-        """
+        #Remove columns and rows without active pixels
+        
         #Populate self._toCenter edge values to find area to preserve
         self._setEdges()
 

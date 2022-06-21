@@ -1,4 +1,4 @@
-from boolean_image.simplemanipulator import SimpleManipulator
+from bwi.simplemanipulator import SimpleManipulator
 
 
 class Downscale(SimpleManipulator):
@@ -7,10 +7,8 @@ class Downscale(SimpleManipulator):
 
     @staticmethod
     def padArray(array, pad, numPads):
-        """
-        Insert stratified rows and columns of pad data into array in
-        place
-        """
+        #Insert stratified rows and columns of pad data into array in place
+        
         #Check for 0 value to avoid division by zero
         if not numPads:
             return
@@ -32,18 +30,14 @@ class Downscale(SimpleManipulator):
         return
 
     def recursivePadDownscale(self, targetHeight, factor=2):
-        """
-        Downscale BI using fixed max pool downscaling
-        interplaced with in place array padding operations
-        """
+        #Downscale using fixed max pool downscaling interplaced with array padding
+
         originalHeight, originalWidth = self.height, self.width
 
-        #Necessesary to enlarge model of active region by shaving
-        #excess inactive pixels
+        #Necessesary to enlarge active region by shaving outer inactive pixels
         self.shave()
 
         #Until the image is the target size by height
-        #(both certain in square case)
         while len(self.image) != targetHeight:
 
             #Find pad size for each axis
@@ -68,10 +62,8 @@ class Downscale(SimpleManipulator):
         return
 
     def maxPoolDownscale(self, factor):
-        """
-        Use copy/assignment to generate a BIA that has been downscaled
-        using max pool of kernel size by factor
-        """
+        #Generate downscaled image by factor
+
         #Initialize result to the correct size
         result = [
             [0 for i in range(len(self.image[0]) // factor)]
@@ -81,7 +73,7 @@ class Downscale(SimpleManipulator):
         for i, row in enumerate(result):
             for j, pixel in enumerate(result):
 
-                #For each pixel in kernel of original BIA
+                #For each pixel in kernel of original image
                 for k in range(factor):
                     for l in range(factor):
 

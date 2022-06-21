@@ -7,13 +7,12 @@ def _getIntegerMean(*args):
 
 
 class NeuralNetwork(object):
-    """
-    Multi-layer Perceptron Neural Network
-    """
+    #Multi-layer Perceptron Neural Network
+    
     defaultKwargs = {'epochs':100,
-                     'learnRate':0.1,
-                     'momentum':0.1,
-                     'verbose':False}
+                     'learnRate':0.5,
+                     'momentum':0.5,
+                     'verbose':True}
     def __init__(self, numOutput, trainData, **kwargs):
         self.trainData = trainData
         self.mse = 0
@@ -22,24 +21,17 @@ class NeuralNetwork(object):
         return
 
     def train(self, verbose=None):
-        """
-        Train network
-
-        Handle calling verbose or silent traing method
-        """
-        if verbose == None:
-            verbose = self.verbose
-        if verbose:
+        #Train network
+        
+        if verbose != False:
             self._trainVerbose()
         else:
             self._train()
         return
 
     def predict(self, predictData):
-        """
-        Generate list of predictions indexed to each item in
-        prediciton input data
-        """
+        #Generate list of predictions
+
         result = []
         for i in range(predictData.numSources):
             self.inputLayer.populate(predictData.inputs)
@@ -50,41 +42,27 @@ class NeuralNetwork(object):
         return result
 
     def propagate(self):
-        """
-        Update each Layer's values forward from the input to the
-        output layer
-
-        Should call before finding the next epoch's deltas
-        """
+        #Update each Layer's values forward from the input to the output layer
+        
         self.hiddenLayer.propagate()
         self.outputLayer.propagate()
         return
 
     def updateDeltas(self, target):
-        """
-        Update each layer's deltas backwards from output to input
-        layer
-
-        Should call after propagation
-        """
+        #Update deltas in reverse order of layers in network
+        
         self.outputLayer.updateDeltas(target)
         self.hiddenLayer.updateDeltas(self.outputLayer)
         return
 
     def updateWeights(self):
-        """
-        Forward update the weights connecting each layer feed forward
-
-        Should call after updating deltas
-        """
+        #Forward update the weights connecting each layer feed forward
+        
         self.hiddenLayer.updateWeights(self.momentum, self.learnRate)
         self.outputLayer.updateWeights(self.momentum, self.learnRate)
         return
 
-    def _train(self):
-        """
-        Train the network with no print calls to terminal
-        """
+    def _train(self):        
         for i in range(self.epochs):
             self.trainData.shuffle()
             for i in range(self.trainData.numSources):
@@ -96,9 +74,6 @@ class NeuralNetwork(object):
         return
 
     def _trainVerbose(self):
-        """
-        Train the network and print to terminal each epoch
-        """
         for i in range(self.epochs):
             self.trainData.shuffle()
             self.mse = 0.0
@@ -114,9 +89,6 @@ class NeuralNetwork(object):
         return
 
     def __init__layers(self, numOutput):
-        """
-        Initialize each Layer of the neural network
-        """
         self.inputLayer = InputLayer(self.trainData.inputs)
         numHidden = _getIntegerMean(numOutput, self.inputLayer.count)
         self.hiddenLayer = HiddenLayer(numHidden, self.inputLayer)
@@ -124,12 +96,6 @@ class NeuralNetwork(object):
         return
 
     def __init__kwargs(self, kwargs):
-        """
-        Initialize each keyword.
-
-        If they have not been explicitly passed, assignt to class 
-        attribute defaultKwargs
-        """
         self.epochs    = self.__init__keyword(kwargs, 'epochs')
         self.learnRate = self.__init__keyword(kwargs, 'learnRate')
         self.momentum  = self.__init__keyword(kwargs, 'momentum')
@@ -138,9 +104,7 @@ class NeuralNetwork(object):
 
     @classmethod
     def __init__keyword(cls, kwargs, key):
-        """
-        Exception handle to return kwarg value.
-        """
+        #Handle kwargs
         try:
             return kwargs[key]
         except KeyError:

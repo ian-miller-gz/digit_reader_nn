@@ -1,7 +1,5 @@
 class ActiveEdges(object):
-    """
-    Contain values pertinent to centering a BI
-    """
+    #Edges of active region
     def __init__(self):
         #Edges; numPixels from edge to find first active pixel
         self.top = None
@@ -10,33 +8,13 @@ class ActiveEdges(object):
         self.left = None
 
     def reset(self):
-        """
-        Set each edge to None
-
-        Hopefully invoke an error, or be traceable since these values
-        should never be called without being immediately determined
-        prior
-
-        Determining these values is expensive. So, do not wrap their
-        generation in a property; it is not obvious they are
-        expensive
-        """
         self.__init__()
 
 
 class BaseManipulator(object):
-    """
-    Two-dimensional array of 1's and 0's which represent the active
-    and inactive regions of depictive images / characters
-
-    Can define an active region, a smallest possible square capable of
-    containing the active region. Define by finding distance inward
-    the total image size to the active region from each eadge - store
-    as ActiveEdges object
-    """
+    #Crop Black/White field based on activity.
     def __init__(self, array, x=None, y=None):
         if not x or not y:
-            assert len(array[0]), "{} is flat; Require dimensions".format(array)
             self.image = array
             self.height = len(array)
             self.width = len(array[0])
@@ -53,12 +31,7 @@ class BaseManipulator(object):
 
     @staticmethod
     def _construct(array, x, y):
-        """
-        Populate two-dimensional array from elements in a
-        one-dimensional array
-
-        width and height are determined by x and y parameters
-        """
+        #Populate field
         assert len(array) == x * y, "{} is not the correct size; {} * {}".format(
             array, x, y)
 
@@ -77,25 +50,17 @@ class BaseManipulator(object):
 
     @staticmethod
     def _getRange(line):
-        """
-        Return tuple of two coordinates spanning the range of active
-        pixels on line
-
-        Return tuple of two Nones when there is no active region;
-        line is a 1D array
-        """
+        #Return coordinates spanning the range of active pixels on line
         left = len(line) + 1
         right = -1
         isFound = False
         for i, eachItem in enumerate(line):
 
-            #Update the right-most pixel coordinate with each
-            #new-found active pixel
+            #Update the right-most coordinate when a active pixel is found
             if eachItem:
                 right = i
 
-                #Only check for the left-most pixel until the first
-                #pixel is found
+                #Left-most coordinate is the first active pixel
                 if not isFound:
                     isFound = True
                     left = i
@@ -104,13 +69,8 @@ class BaseManipulator(object):
         return (left, right) if right >= 0 else (None, None)
 
     def _setEdges(self):
-        """
-        Set edge values stored in self._activeEdges
-
-        Edge values are distance inward from 0, size of array in
-        either dimension to the first row or column containing an
-        active pixel
-        """
+        #Set edge values stored in self._activeEdges
+        
         #Initialize egdge values to their limits
         self._activeEdges.bottom, self._activeEdges.top = (
             -1, self.height)

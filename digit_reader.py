@@ -1,48 +1,51 @@
+#!/usr/bin/python
+
 from nn.network import NeuralNetwork
-from sample_reader.boolean_image_sampler import BooleanImageSampler
-from boolean_image.manipulator import Manipulator
+from sample_reader.bwi_sampler import BWISampler
+from bwi.manipulator import Manipulator
 import sys
 """
 Digit Reader Script
 
 Summary:
-    -Generate a neural network to learn to read single characters
-     given a training set of samples, and a list of goals, then report
-     back accuracy.
+    -A neural network to learn that learns to read digit characters
 
 Arguments:
     -Number of files to read
-        -i.e. '36'
+        -i.e. '44'
         -Samples should each have their own file
         -Samples should be named <x>.bmp in 0 inclusive
         -Samples should be stored in the raw directory
     -Number of tests
-        -i.e. '9'
+        -i.e. '44'
         -Extra samples to validate with, these will not be used for
          training
         -Samples named img<number of files>.<extension> up through
          <number of tests>
     -Epochs
-        -i.e. '10'
+        -i.e. '7'
         -The number of training epochs
 """
-def printResults(validateSamples, perceptron):
+
+NUM_ALL_FILES = 44
+
+def printResults(validateSamples, network):
     """
     Have the network read each character in the validation sample set 
     and print those predictions to measure accuracy
     """
     #Run the prediction algorithm and store results as 'predictions'
-    predictions = perceptron.predict(validateSamples)
+    predictions = network.predict(validateSamples)
     
     #Print a header for tabular print
-    print("Actual", '\t', "Predicted")
+    print('\t\t', 'Actual', '\t', 'Predicted', '\t', 'Missed?')
     
     #Print out each prediction with corresponding fileName and target 
     #reading of image
     for target, prediction, fileName in zip(
     validateSamples.targets, predictions, validateSamples.fileNames):
         missed = "X" if target != prediction else ""
-        print(fileName, '--', target, '----', prediction,'\t', missed)
+        print(fileName, '\t', target, '\t\t', prediction,'\t\t', missed)
 
 
 def populateTargets(targetsFileName):
@@ -65,7 +68,7 @@ def populateTargets(targetsFileName):
 if __name__ == '__main__':
     #Constants
     OUTPUT_NEURONS = 10
-    TARGETS   = "raw/goals.txt"
+    TARGETS   = "samples/targets.txt"
     SCALE  = 2
     FACTOR = 2
 
@@ -81,26 +84,27 @@ if __name__ == '__main__':
         exit()
 
     #Populate list of fileNames, targets - names use "img0.bmp" format
-    files = ["raw/" + str(i) + ".boolmap" for i in range(NUM_FILES)]
+    files = ["samples/" + str(i) + ".bwi" for i in range(NUM_FILES)]
+    allFiles = ["samples/" + str(i) + ".bwi" for i in range(NUM_ALL_FILES)]
     goals = populateTargets(TARGETS)
     
     #Generate Sample Sets
-    validateSamples = BooleanImageSampler(files, goals, SCALE, FACTOR)
-    trainingSamples = BooleanImageSampler(files, goals, SCALE, FACTOR)
+    validateSamples = BWISampler(allFiles, goals, SCALE, FACTOR)
+    trainingSamples = BWISampler(files, goals, SCALE, FACTOR)
 
     #Slice opposite of each other
-    validateSamples.setSlice(NUM_FILES-NUM_TESTS)
-    trainingSamples.setSlice(0, NUM_FILES-NUM_TESTS)
+    validateSamples.setSlice(1)
+    trainingSamples.setSlice(0, NUM_TESTS)
     
     #Randomize order samples
     validateSamples.shuffle()
     trainingSamples.shuffle()
 
     #Generate network and train
-    numberReaderPerceptron = NeuralNetwork(
+    numberReader = NeuralNetwork(
         OUTPUT_NEURONS, trainingSamples, epochs=EPOCHS)
-    numberReaderPerceptron.train(True)
+    numberReader.train(True)
 
     #Have the network read each character in the validation sample set
     #and print those predictions to measure accuracy
-    printResults(validateSamples, numberReaderPerceptron)
+    printResults(validateSamples, numberReader)
